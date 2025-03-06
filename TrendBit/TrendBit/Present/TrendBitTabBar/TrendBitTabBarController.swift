@@ -46,6 +46,9 @@ final class TrendBitTabBarController: UITabBarController {
         let exchangeNavigationController = UINavigationController(rootViewController: exchangeViewController)
         let coinInfoNavigationController = UINavigationController(rootViewController: coinInfoViewController)
         let portfolioNavigationController = UINavigationController(rootViewController: portfolioViewController)
+        exchangeNavigationController.isNavigationBarHidden = true
+        coinInfoNavigationController.isNavigationBarHidden = true
+        portfolioNavigationController.isNavigationBarHidden = true
         setViewControllers(
             [exchangeNavigationController, coinInfoNavigationController, portfolioNavigationController],
             animated: true
