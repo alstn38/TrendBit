@@ -11,6 +11,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        configureNavigationBarAppearance()
         return true
     }
 
@@ -20,4 +21,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) { }
+    
+    private func configureNavigationBarAppearance() {
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.configureWithOpaqueBackground()
+        navigationBarAppearance.backgroundColor = UIColor(resource: .trendBitWhite)
+        navigationBarAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor(resource: .trendBitNavy),
+            .font: UIFont.boldSystemFont(ofSize: 15)
+        ]
+        
+        let appearance = UINavigationBar.appearance()
+        appearance.standardAppearance = navigationBarAppearance
+        appearance.scrollEdgeAppearance = navigationBarAppearance
+        appearance.tintColor = UIColor(resource: .trendBitNavy)
+    }
 }
