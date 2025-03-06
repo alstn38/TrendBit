@@ -14,7 +14,22 @@
 		F1804F042D799C4D00D9FCD1 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F1804F032D799C4D00D9FCD1 /* RxSwift */; };
 		F1804F072D799C6700D9FCD1 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F1804F062D799C6700D9FCD1 /* Kingfisher */; };
 		F1804F0A2D799C7C00D9FCD1 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = F1804F092D799C7C00D9FCD1 /* Alamofire */; };
+		F18051472D79B24900D9FCD1 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = F1804EF92D799C0700D9FCD1 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F18051462D79B1F400D9FCD1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F18051472D79B24900D9FCD1 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F1804E242D79995600D9FCD1 /* TrendBit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrendBit.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +100,7 @@
 				F1804E202D79995600D9FCD1 /* Sources */,
 				F1804E212D79995600D9FCD1 /* Frameworks */,
 				F1804E222D79995600D9FCD1 /* Resources */,
+				F18051462D79B1F400D9FCD1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
