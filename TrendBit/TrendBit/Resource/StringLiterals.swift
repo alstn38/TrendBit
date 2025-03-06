@@ -26,4 +26,11 @@ enum StringLiterals {
         static let previousDayViewButtonTitle: String = "전일대비"
         static let transactionAmountViewButtonTitle: String = "거래대금"
     }
+    
+    enum CoinInfo {
+        static let title: String = "가상자산 / 심볼 검색"
+        static let searchTextFieldPlaceholder: String = "검색어를 입력해주세요."
+        static let popularSearchTitle: String = "인기 검색어"
+        static let popularNFTTitle: String = "인기 NFT"
+    }
 }
