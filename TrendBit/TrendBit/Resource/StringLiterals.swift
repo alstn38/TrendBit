@@ -33,4 +33,11 @@ enum StringLiterals {
         static let popularSearchTitle: String = "인기 검색어"
         static let popularNFTTitle: String = "인기 NFT"
     }
+    
+    enum Search {
+        static let searchTextFieldPlaceholder: String = "검색어를 입력해주세요."
+        static let coinTitle: String = "코인"
+        static let nftTitle: String = "NFT"
+        static let exchangeTitle: String = "거래소"
+    }
 }
