@@ -40,4 +40,16 @@ enum StringLiterals {
         static let nftTitle: String = "NFT"
         static let exchangeTitle: String = "거래소"
     }
+    
+    enum DetailCoin {
+        static let typeInfoTitle: String = "종목정보"
+        static let moreButtonTitle: String = "더보기"
+        static let highPriceTitle: String = "24시간 고가"
+        static let lowPriceTitle: String = "24시간 저가"
+        static let allHighPriceTitle: String = "역대 최고가"
+        static let allLowPriceTitle: String = "역대 최저가"
+        static let capitalizationTitle: String = "시가총액"
+        static let fdvTitle: String = "완전 희석 가치(FDV)"
+        static let volumeTitle: String = "총 거래량"
+    }
 }
