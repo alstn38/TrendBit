@@ -13,6 +13,11 @@ enum StringLiterals {
         static let backButtonTitle: String = ""
     }
     
+    enum Alert {
+        static let networkError: String = "네트워크 에러"
+        static let confirm: String = "확인"
+    }
+    
     enum TapBar {
         static let exchangeTitle: String = "거래소"
         static let coinInfoTitle: String = "코인정보"
