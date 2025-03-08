@@ -6,9 +6,26 @@
 //
 
 import UIKit
+import RxDataSources
+import RxSwift
+import RxCocoa
 import SnapKit
 
 final class ExchangeViewController: UIViewController {
+    
+    private let viewModel: ExchangeViewModel
+    private let disposeBag = DisposeBag()
+    
+    private let dataSource = RxTableViewSectionedReloadDataSource<ExchangeSection> {
+        dataSource, tableView, indexPath, item in
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ExchangeTableViewCell.identifier,
+            for: indexPath
+        ) as? ExchangeTableViewCell else { return UITableViewCell() }
+        
+        cell.configureCell(with: item)
+        return cell
+    }
     
     private let titleLabel = UILabel()
     private let lineView = UIView()
@@ -19,16 +36,72 @@ final class ExchangeViewController: UIViewController {
     private let transactionAmountViewButton = FilterViewButton(title: StringLiterals.Exchange.transactionAmountViewButtonTitle)
     private let exchangeTableView = UITableView()
     
+    init(viewModel: ExchangeViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureBind()
         configureView()
         configureHierarchy()
         configureLayout()
+    }
+    
+    private func configureBind() {
+        let input = ExchangeViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            currentPriceFilterButtonDidTap: currentPriceViewButton.tapGesture.rx.event.map { _ in () }.asObservable(),
+            previousDayFilterButton: previousDayViewButton.tapGesture.rx.event.map { _ in () }.asObservable(),
+            transactionAmountFilterButton: transactionAmountViewButton.tapGesture.rx.event.map { _ in () }.asObservable()
+        )
         
-        exchangeTableView.register(ExchangeTableViewCell.self, forCellReuseIdentifier: ExchangeTableViewCell.identifier) // TODO: 삭제
-        exchangeTableView.delegate = self // TODO: 삭제
-        exchangeTableView.dataSource = self  // TODO: 삭제
+        let output = viewModel.transform(from: input)
+        
+        output.exchangeData
+            .drive(exchangeTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        output.filterState
+            .drive(with: self) { owner, value in
+                let (filterType, filterState) = value
+                
+                switch filterType {
+                case .currentPrice:
+                    owner.currentPriceViewButton.configureView(state: filterState)
+                    
+                case .previousDay:
+                    owner.previousDayViewButton.configureView(state: filterState)
+                    
+                case .transactionAmount:
+                    owner.transactionAmountViewButton.configureView(state: filterState)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.loadingIndicator
+            .drive { isAnimate in
+                if isAnimate {
+                    LoadingIndicator.showLoading()
+                } else {
+                    LoadingIndicator.hideLoading()
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.presentError
+            .drive(with: self) { owner, value in
+                let (title, message) = value
+                owner.presentAlert(title: title, message: message)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func configureView() {
@@ -49,6 +122,10 @@ final class ExchangeViewController: UIViewController {
         exchangeTableView.backgroundColor = UIColor(resource: .trendBitWhite)
         exchangeTableView.showsVerticalScrollIndicator = false
         exchangeTableView.rowHeight = 50
+        exchangeTableView.register(
+            ExchangeTableViewCell.self,
+            forCellReuseIdentifier: ExchangeTableViewCell.identifier
+        )
     }
     
     private func configureHierarchy() {
