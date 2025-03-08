@@ -56,6 +56,20 @@ final class FilterViewButton: UIView {
         }
     }
     
+    func configureView(state: ExchangeViewModel.SortFilterState) {
+        switch state {
+        case .none:
+            arrowUpImageView.tintColor = UIColor(resource: .trendBitGray)
+            arrowDownImageView.tintColor = UIColor(resource: .trendBitGray)
+        case .descending:
+            arrowUpImageView.tintColor = UIColor(resource: .trendBitGray)
+            arrowDownImageView.tintColor = UIColor(resource: .trendBitNavy)
+        case .ascending:
+            arrowUpImageView.tintColor = UIColor(resource: .trendBitNavy)
+            arrowDownImageView.tintColor = UIColor(resource: .trendBitGray)
+        }
+    }
+    
     private func configureView() {
         self.addGestureRecognizer(tapGesture)
         self.isUserInteractionEnabled = true
@@ -65,11 +79,11 @@ final class FilterViewButton: UIView {
         
         arrowUpImageView.image = ImageAssets.arrowTriangleUpFill
         arrowUpImageView.contentMode = .scaleAspectFill
-        arrowUpImageView.tintColor = .trendBitGray
+        arrowUpImageView.tintColor = UIColor(resource: .trendBitGray)
         
         arrowDownImageView.image = ImageAssets.arrowTriangleDownFill
         arrowDownImageView.contentMode = .scaleAspectFill
-        arrowDownImageView.tintColor = .trendBitGray
+        arrowDownImageView.tintColor = UIColor(resource: .trendBitGray)
     }
     
     private func configureHierarchy() {
