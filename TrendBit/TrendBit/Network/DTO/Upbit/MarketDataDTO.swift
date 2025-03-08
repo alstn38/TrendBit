@@ -64,3 +64,11 @@ struct MarketDataDTO: Decodable {
         case timestamp
     }
 }
+
+extension MarketDataDTO {
+    
+    func toEntity() -> ExchangeDataEntity {
+        let mapper = MarketDataDTOMapper()
+        return mapper.toEntity(from: self)
+    }
+}
