@@ -22,7 +22,8 @@ final class TrendBitTabBarController: UITabBarController {
     }
     
     private func configureTabBarController() {
-        let exchangeViewController = ExchangeViewController()
+        let viewModel = ExchangeViewModel()
+        let exchangeViewController = ExchangeViewController(viewModel: viewModel)
         exchangeViewController.tabBarItem = UITabBarItem(
             title: StringLiterals.TapBar.exchangeTitle,
             image: ImageAssets.chartLineUptrendAxis,
