@@ -40,6 +40,13 @@ final class NumberFormatterManager {
         return percentNumberFormatter.string(for: value) ?? "Error"
     }
     
+    /// TrendBit Percent 표기 방식 String을 반환하는 메서드
+    /// - 소수점 2자리까지 필수적으로 표시됩니다.
+    func percentDidvidHundred(from value: Double) -> String {
+        let value = value / 100
+        return percentNumberFormatter.string(for: value) ?? "Error"
+    }
+    
     /// TrendBit 백만 단위 표기 방식 String을 반환하는 메서드
     /// 백만 이하 단위일 시 기본값으로 표시됩니다.
     /// 정수만 표시됩니다.
