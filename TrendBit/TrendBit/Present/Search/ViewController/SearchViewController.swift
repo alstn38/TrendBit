@@ -44,7 +44,11 @@ final class SearchViewController: UIViewController {
     private let searchTitleButton = SearchViewModel.SearchViewType.allCases.map { _ in UIButton() }
     private let pageSelectBackgroundView = UIView()
     private let pageSelectView = UIView()
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let searchTableView = UITableView()
+    private let nftTableView = UITableView()
+    private let exchangeTableView = UITableView()
     
     init(viewModel: SearchViewModel) {
         self.viewModel = viewModel
@@ -75,7 +79,6 @@ final class SearchViewController: UIViewController {
             popButtonDidTap: popButton.rx.tap.asObservable(),
             searchTextDidChange: searchTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(searchTextField.rx.text.orEmpty).asObservable(),
-            searchTitleStateDidChange: searchStateRelay.asObservable(),
             searchItemDidTap: searchTableView.rx.modelSelected(SearchCoinEntity.self).asObservable(),
             favoriteButtonDidTap: favoriteButtonDidTapRelay.asObservable()
         )
@@ -125,6 +128,17 @@ final class SearchViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
+        scrollView.rx.didEndDecelerating
+            .withLatestFrom(scrollView.rx.contentOffset)
+            .bind(with: self) { owner, point in
+                let screenWidth: CGFloat = owner.view.window?.windowScene?.screen.bounds.width ?? UIScreen.main.bounds.width
+                let currentPage = Int(round(point.x / screenWidth))
+                let type = SearchViewModel.SearchViewType(rawValue: currentPage) ?? .coin
+                owner.searchStateRelay.accept(type)
+                owner.configureSearchTitleState(type)
+            }
+            .disposed(by: disposeBag)
+        
         for (button, searchType) in zip(searchTitleButton, SearchViewModel.SearchViewType.allCases) {
             button.rx.tap
                 .map { searchType }
@@ -163,6 +177,9 @@ final class SearchViewController: UIViewController {
         
         pageSelectView.backgroundColor = UIColor(resource: .trendBitNavy)
         
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.isPagingEnabled = true
+        
         searchTableView.backgroundColor = UIColor(resource: .trendBitWhite)
         searchTableView.rowHeight = 60
         searchTableView.showsVerticalScrollIndicator = false
@@ -170,6 +187,9 @@ final class SearchViewController: UIViewController {
             CoinSearchTableViewCell.self,
             forCellReuseIdentifier: CoinSearchTableViewCell.identifier
         )
+        
+        nftTableView.backgroundColor = .yellow
+        exchangeTableView.backgroundColor = .cyan
     }
     
     private func configureHierarchy() {
@@ -180,7 +200,15 @@ final class SearchViewController: UIViewController {
             searchTitleStackView,
             pageSelectBackgroundView,
             pageSelectView,
-            searchTableView
+            scrollView
+        )
+        
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubviews(
+            searchTableView,
+            nftTableView,
+            exchangeTableView
         )
         
         searchTitleButton.forEach {
@@ -226,10 +254,34 @@ final class SearchViewController: UIViewController {
             $0.width.equalTo(searchTitleButton[0].snp.width)
         }
         
-        searchTableView.snp.makeConstraints {
-            $0.top.equalTo(pageSelectBackgroundView.snp.bottom).offset(6)
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(pageSelectBackgroundView.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.height.equalTo(scrollView)
+            $0.edges.equalTo(scrollView)
+        }
+        
+        searchTableView.snp.makeConstraints {
+            $0.verticalEdges.equalTo(contentView)
+            $0.leading.equalTo(contentView)
+            $0.width.equalTo(view.snp.width)
+        }
+        
+        nftTableView.snp.makeConstraints {
+            $0.verticalEdges.equalTo(contentView)
+            $0.leading.equalTo(searchTableView.snp.trailing)
+            $0.width.equalTo(view.snp.width)
+        }
+        
+        exchangeTableView.snp.makeConstraints {
+            $0.verticalEdges.equalTo(contentView)
+            $0.leading.equalTo(nftTableView.snp.trailing)
+            $0.trailing.equalTo(contentView)
+            $0.width.equalTo(view.snp.width)
         }
     }
     
