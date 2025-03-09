@@ -15,6 +15,7 @@ enum StringLiterals {
     
     enum Alert {
         static let networkError: String = "네트워크 에러"
+        static let localDataError: String = "로컬 데이터 에러"
         static let confirm: String = "확인"
     }
     
