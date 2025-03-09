@@ -30,3 +30,12 @@ struct SearchCoinDetail: Decodable {
         case large
     }
 }
+
+// MARK: - To Entity Method
+extension SearchCoinDTO {
+    
+    func toEntity() -> [SearchCoinEntity] {
+        let mapper = SearchCoinDTOMapper()
+        return mapper.toEntity(from: self)
+    }
+}
