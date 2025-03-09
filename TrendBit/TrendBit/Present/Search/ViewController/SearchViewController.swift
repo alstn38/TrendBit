@@ -6,9 +6,36 @@
 //
 
 import UIKit
+import RxDataSources
+import RxSwift
+import RxCocoa
 import SnapKit
 
 final class SearchViewController: UIViewController {
+    
+    private let viewModel: SearchViewModel
+    private let favoriteButtonDidTapRelay = PublishRelay<SearchCoinEntity>()
+    private let searchStateRelay: BehaviorRelay<SearchViewModel.SearchViewType> = BehaviorRelay(value: .coin)
+    private let disposeBag = DisposeBag()
+    
+    private lazy var dataSource = RxTableViewSectionedReloadDataSource<SearchCoinSection> {
+        [weak self] dataSource, tableView, indexPath, item in
+        
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: CoinSearchTableViewCell.identifier,
+            for: indexPath
+        ) as? CoinSearchTableViewCell else { return UITableViewCell() }
+        
+        cell.configureCell(with: item)
+        cell.favoriteButton.rx.tap
+            .map { item }
+            .bind { item in
+                self?.favoriteButtonDidTapRelay.accept(item)
+            }
+            .disposed(by: cell.disposeBag)
+        
+        return cell
+    }
     
     private let popButton = UIButton()
     private let searchTextField = UITextField()
@@ -17,19 +44,96 @@ final class SearchViewController: UIViewController {
     private let searchTitleButton = SearchViewModel.SearchViewType.allCases.map { _ in UIButton() }
     private let pageSelectBackgroundView = UIView()
     private let pageSelectView = UIView()
-    private lazy var searchPageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: configureCollectionViewLayout())
+    private let searchTableView = UITableView()
+    
+    init(viewModel: SearchViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        print("SearchViewController - Deinit")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureBind()
         configureView()
         configureHierarchy()
         configureLayout()
-        searchPageCollectionView.register(CoinSearchCollectionViewCell.self, forCellWithReuseIdentifier: CoinSearchCollectionViewCell.identifier) // TODO: 이후 삭제
-        searchPageCollectionView.register(NFTSearchCollectionViewCell.self, forCellWithReuseIdentifier: NFTSearchCollectionViewCell.identifier) // TODO: 이후 삭제
-        searchPageCollectionView.register(ExchangeSearchCollectionViewCell.self, forCellWithReuseIdentifier: ExchangeSearchCollectionViewCell.identifier) // TODO: 이후 삭제
-        searchPageCollectionView.delegate = self // TODO: 이후 삭제
-        searchPageCollectionView.dataSource = self // TODO: 이후 삭제
+    }
+    
+    private func configureBind() {
+        let input = SearchViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            popButtonDidTap: popButton.rx.tap.asObservable(),
+            searchTextDidChange: searchTextField.rx.controlEvent(.editingDidEnd)
+                .withLatestFrom(searchTextField.rx.text.orEmpty).asObservable(),
+            searchTitleStateDidChange: searchStateRelay.asObservable(),
+            searchItemDidTap: searchTableView.rx.modelSelected(SearchCoinEntity.self).asObservable(),
+            favoriteButtonDidTap: favoriteButtonDidTapRelay.asObservable()
+        )
+        
+        let output = viewModel.transform(from: input)
+        
+        output.searchText
+            .drive(searchTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.searchedData
+            .drive(searchTableView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        output.scrollToTop
+            .drive(with: self) { owner, _ in
+                owner.searchTableView.setContentOffset(.zero, animated: false)
+            }
+            .disposed(by: disposeBag)
+        
+        output.moveToOtherView
+            .drive(with: self) { owner, viewType in
+                switch viewType {
+                case .pop:
+                    owner.navigationController?.popViewController(animated: true)
+                    
+                case .detail(let id):
+                    print("Detail ViewController 이동 - \(id)")
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.loadingIndicator
+            .drive { isAnimate in
+                if isAnimate {
+                    LoadingIndicator.showLoading()
+                } else {
+                    LoadingIndicator.hideLoading()
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.presentError
+            .drive(with: self) { owner, value in
+                let (title, message) = value
+                owner.presentAlert(title: title, message: message)
+            }
+            .disposed(by: disposeBag)
+        
+        for (button, searchType) in zip(searchTitleButton, SearchViewModel.SearchViewType.allCases) {
+            button.rx.tap
+                .map { searchType }
+                .bind(with: self, onNext: { owner, type in
+                    owner.searchStateRelay.accept(type)
+                    owner.configureSearchTitleState(type)
+                })
+                .disposed(by: disposeBag)
+        }
     }
     
     private func configureView() {
@@ -59,7 +163,13 @@ final class SearchViewController: UIViewController {
         
         pageSelectView.backgroundColor = UIColor(resource: .trendBitNavy)
         
-        searchPageCollectionView.backgroundColor = .trendBitWhite
+        searchTableView.backgroundColor = UIColor(resource: .trendBitWhite)
+        searchTableView.rowHeight = 60
+        searchTableView.showsVerticalScrollIndicator = false
+        searchTableView.register(
+            CoinSearchTableViewCell.self,
+            forCellReuseIdentifier: CoinSearchTableViewCell.identifier
+        )
     }
     
     private func configureHierarchy() {
@@ -70,7 +180,7 @@ final class SearchViewController: UIViewController {
             searchTitleStackView,
             pageSelectBackgroundView,
             pageSelectView,
-            searchPageCollectionView
+            searchTableView
         )
         
         searchTitleButton.forEach {
@@ -112,11 +222,11 @@ final class SearchViewController: UIViewController {
         pageSelectView.snp.makeConstraints {
             $0.centerY.equalTo(pageSelectBackgroundView)
             $0.height.equalTo(2)
-            $0.leading.equalToSuperview() // TODO: 이후 삭제
-            $0.width.equalTo(120) // TODO: 이후 삭제
+            $0.centerX.equalTo(searchTitleButton[0].snp.centerX)
+            $0.width.equalTo(searchTitleButton[0].snp.width)
         }
         
-        searchPageCollectionView.snp.makeConstraints {
+        searchTableView.snp.makeConstraints {
             $0.top.equalTo(pageSelectBackgroundView.snp.bottom).offset(6)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
@@ -147,38 +257,21 @@ final class SearchViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout(section: sectionLayout)
         return layout
     }
-}
-
-
-// TODO: 이후 삭제
-extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return SearchViewModel.SearchViewType.allCases.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.row == 0 {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: CoinSearchCollectionViewCell.identifier,
-                for: indexPath
-            ) as? CoinSearchCollectionViewCell else { return UICollectionViewCell() }
-            
-            return cell
-        } else if indexPath.row == 1 {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: NFTSearchCollectionViewCell.identifier,
-                for: indexPath
-            ) as? NFTSearchCollectionViewCell else { return UICollectionViewCell() }
-            
-            return cell
-        } else {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ExchangeSearchCollectionViewCell.identifier,
-                for: indexPath
-            ) as? ExchangeSearchCollectionViewCell else { return UICollectionViewCell() }
-            
-            return cell
+    private func configureSearchTitleState(_ inputType: SearchViewModel.SearchViewType) {
+        for (button, searchType) in zip(searchTitleButton, SearchViewModel.SearchViewType.allCases) {
+            if searchType == inputType {
+                button.setTitleColor(UIColor(resource: .trendBitNavy), for: .normal)
+            } else {
+                button.setTitleColor(UIColor(resource: .trendBitGray), for: .normal)
+            }
+        }
+        
+        pageSelectView.snp.remakeConstraints {
+            $0.centerY.equalTo(pageSelectBackgroundView)
+            $0.height.equalTo(2)
+            $0.centerX.equalTo(searchTitleButton[inputType.rawValue].snp.centerX)
+            $0.width.equalTo(searchTitleButton[inputType.rawValue].snp.width)
         }
     }
 }
