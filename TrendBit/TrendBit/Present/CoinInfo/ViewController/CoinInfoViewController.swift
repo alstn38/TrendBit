@@ -6,9 +6,15 @@
 //
 
 import UIKit
+import RxDataSources
+import RxSwift
+import RxCocoa
 import SnapKit
 
 final class CoinInfoViewController: UIViewController {
+    
+    private let viewModel: CoinInfoViewModel
+    private let disposeBag = DisposeBag()
     
     private let titleLabel = UILabel()
     private let lineView = UIView()
@@ -19,19 +25,97 @@ final class CoinInfoViewController: UIViewController {
     private let popularNFTTitleLabel = UILabel()
     private lazy var poplarNFTCollectionView = UICollectionView(frame: .zero, collectionViewLayout: poplarNFTCollectionFlowLayout())
     
+    private let poplarSearchDataSource = RxCollectionViewSectionedReloadDataSource<PoplarSearchSection> {
+        dataSource, collectionView, indexPath, item in
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: PoplarSearchCollectionViewCell.identifier,
+            for: indexPath
+        ) as? PoplarSearchCollectionViewCell else { return UICollectionViewCell() }
+        
+        cell.configureCell(with: item)
+        return cell
+    }
+    
+    private let poplarNFTDataSource = RxCollectionViewSectionedReloadDataSource<PoplarNFTSection> {
+        dataSource, collectionView, indexPath, item in
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: PoplarNFTCollectionViewCell.identifier,
+            for: indexPath
+        ) as? PoplarNFTCollectionViewCell else { return UICollectionViewCell() }
+        
+        cell.configureCell(with: item)
+        return cell
+    }
+    
+    init(viewModel: CoinInfoViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureBind()
         configureView()
         configureHierarchy()
         configureLayout()
+    }
+    
+    private func configureBind() {
+        let input = CoinInfoViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            searchDidTap: searchView.searchTextField.rx.controlEvent(.editingDidEnd)
+                .withLatestFrom(searchView.searchTextField.rx.text.orEmpty).asObservable(),
+            poplarSearchTap: poplarSearchCollectionView.rx.modelSelected(TrendCoinInfo.self).asObservable()
+        )
         
-        poplarSearchCollectionView.register(PoplarSearchCollectionViewCell.self, forCellWithReuseIdentifier: PoplarSearchCollectionViewCell.identifier) // TODO: 이후 삭제
-        poplarSearchCollectionView.delegate = self // TODO: 이후 삭제
-        poplarSearchCollectionView.dataSource = self // TODO: 이후 삭제
-        poplarNFTCollectionView.register(PoplarNFTCollectionViewCell.self, forCellWithReuseIdentifier: PoplarNFTCollectionViewCell.identifier) // TODO: 이후 삭제
-        poplarNFTCollectionView.delegate = self // TODO: 이후 삭제
-        poplarNFTCollectionView.dataSource = self // TODO: 이후 삭제
+        let output = viewModel.transform(from: input)
+        
+        output.updateTime
+            .drive(updateTimeLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.poplarSearchData
+            .drive(poplarSearchCollectionView.rx.items(dataSource: poplarSearchDataSource))
+            .disposed(by: disposeBag)
+        
+        output.poplarNFTData
+            .drive(poplarNFTCollectionView.rx.items(dataSource: poplarNFTDataSource))
+            .disposed(by: disposeBag)
+        
+        output.moveToOtherView
+            .drive(with: self) { owner, viewType in
+                switch viewType {
+                case .search(let searchText):
+                    print("search ViewController 이동 - \(searchText)")
+                    
+                case .detail(let id):
+                    print("detail ViewController 이동 - \(id)")
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.loadingIndicator
+            .drive { isAnimate in
+                if isAnimate {
+                    LoadingIndicator.showLoading()
+                } else {
+                    LoadingIndicator.hideLoading()
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.presentError
+            .drive(with: self) { owner, value in
+                let (title, message) = value
+                owner.presentAlert(title: title, message: message)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func configureView() {
@@ -47,11 +131,14 @@ final class CoinInfoViewController: UIViewController {
         popularSearchTitleLabel.textColor = UIColor(resource: .trendBitNavy)
         popularSearchTitleLabel.font = .systemFont(ofSize: 14, weight: .bold)
         
-        updateTimeLabel.text = "02.16 00:30 기준" // TODO: 서버 연결 시 삭제
         updateTimeLabel.textColor = UIColor(resource: .trendBitGray)
         updateTimeLabel.font = .systemFont(ofSize: 13, weight: .regular)
         
         poplarSearchCollectionView.backgroundColor = UIColor(resource: .trendBitWhite)
+        poplarSearchCollectionView.register(
+            PoplarSearchCollectionViewCell.self,
+            forCellWithReuseIdentifier: PoplarSearchCollectionViewCell.identifier
+        )
         
         popularNFTTitleLabel.text = StringLiterals.CoinInfo.popularNFTTitle
         popularNFTTitleLabel.textColor = UIColor(resource: .trendBitNavy)
@@ -59,6 +146,10 @@ final class CoinInfoViewController: UIViewController {
         
         poplarNFTCollectionView.backgroundColor = UIColor(resource: .trendBitWhite)
         poplarNFTCollectionView.showsHorizontalScrollIndicator = false
+        poplarNFTCollectionView.register(
+            PoplarNFTCollectionViewCell.self,
+            forCellWithReuseIdentifier: PoplarNFTCollectionViewCell.identifier
+        )
     }
     
     private func configureHierarchy() {
