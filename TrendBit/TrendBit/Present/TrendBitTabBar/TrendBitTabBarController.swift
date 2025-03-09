@@ -22,15 +22,16 @@ final class TrendBitTabBarController: UITabBarController {
     }
     
     private func configureTabBarController() {
-        let viewModel = ExchangeViewModel()
-        let exchangeViewController = ExchangeViewController(viewModel: viewModel)
+        let exchangeViewModel = ExchangeViewModel()
+        let exchangeViewController = ExchangeViewController(viewModel: exchangeViewModel)
         exchangeViewController.tabBarItem = UITabBarItem(
             title: StringLiterals.TapBar.exchangeTitle,
             image: ImageAssets.chartLineUptrendAxis,
             selectedImage: ImageAssets.chartLineUptrendAxis
         )
         
-        let coinInfoViewController = CoinInfoViewController()
+        let coinInfoViewModel = CoinInfoViewModel()
+        let coinInfoViewController = CoinInfoViewController(viewModel: coinInfoViewModel)
         coinInfoViewController.tabBarItem = UITabBarItem(
             title: StringLiterals.TapBar.coinInfoTitle,
             image: ImageAssets.chartBarFill,
