@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 import SnapKit
 
 final class PoplarSearchCollectionViewCell: UICollectionViewCell, ReusableViewProtocol {
@@ -30,32 +31,54 @@ final class PoplarSearchCollectionViewCell: UICollectionViewCell, ReusableViewPr
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configureCell(with data: TrendCoinInfo) {
+        rankLabel.text = String(data.rank)
+        
+        if let imageURL = URL(string: data.thumbImageURLString) {
+            coinImageView.kf.setImage(with: imageURL)
+        } else {
+            coinImageView.image = ImageAssets.star
+        }
+        
+        coinNameLabel.text = data.coinSymbol
+        coinSubNameLabel.text = data.coinName
+        variablePercentLabel.text = data.changePercent
+        
+        switch data.changeState {
+        case .rise:
+            arrowImageView.image = ImageAssets.arrowTriangleUpFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitRed)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitRed)
+        case .fall:
+            arrowImageView.image = ImageAssets.arrowTriangleDownFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitBlue)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitBlue)
+        case .even:
+            arrowImageView.image = nil
+            arrowImageView.tintColor = UIColor(resource: .trendBitNavy)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitNavy)
+        }
+    }
+    
     private func configureView() {
         self.backgroundColor = UIColor(resource: .trendBitWhite)
         
-        rankLabel.text = "1" // TODO: 서버 연결시 삭제
         rankLabel.textColor = UIColor(resource: .trendBitGray)
         rankLabel.font = .systemFont(ofSize: 12, weight: .regular)
         
         coinImageView.layer.cornerRadius = 13
         coinImageView.clipsToBounds = true
-        coinImageView.backgroundColor = .cyan // TODO: 서버 연결시 삭제
         
-        coinNameLabel.text = "TRUMP" // TODO: 서버 연결시 삭제
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 12, weight: .bold)
         coinNameLabel.numberOfLines = 1
         
-        coinSubNameLabel.text = "Official Trump" // TODO: 서버 연결시 삭제
         coinSubNameLabel.textColor = UIColor(resource: .trendBitGray)
         coinSubNameLabel.font = .systemFont(ofSize: 9, weight: .regular)
         coinSubNameLabel.numberOfLines = 1
         
-        arrowImageView.image = ImageAssets.arrowTriangleUpFill // TODO: 서버 연결시 삭제
         arrowImageView.contentMode = .scaleAspectFit
         
-        variablePercentLabel.text = "36.18%" // TODO: 서버 연결시 삭제
-        variablePercentLabel.textColor = UIColor(resource: .trendBitNavy) // TODO: 서버 연결시 삭제
         variablePercentLabel.font = .systemFont(ofSize: 9, weight: .bold)
     }
     
