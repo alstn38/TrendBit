@@ -49,7 +49,7 @@ struct TrendingCoinDetails: Decodable {
 struct TrendingCoinData: Decodable {
     let price: Double
     let priceBtc: String
-    let priceChangePercentage24H: [String: Double]
+    let priceChangePercentage24H: PriceChangePercentage24H
     let marketCap, marketCapBtc, totalVolume, totalVolumeBtc: String
     let sparkline: String
     let content: Content?
@@ -64,6 +64,10 @@ struct TrendingCoinData: Decodable {
         case totalVolumeBtc = "total_volume_btc"
         case sparkline, content
     }
+}
+
+struct PriceChangePercentage24H: Decodable {
+    let krw: Double
 }
 
 struct Content: Decodable {
@@ -107,5 +111,14 @@ struct TrendingNFTData: Decodable {
         case h24Volume = "h24_volume"
         case h24AverageSalePrice = "h24_average_sale_price"
         case sparkline
+    }
+}
+
+// MARK: - To Entity Method
+extension TrendInfoDTO {
+    
+    func toEntity() -> TrendInfoEntity {
+        let mapper = TrendInfoDTOMapper()
+        return mapper.toEntity(from: self)
     }
 }
