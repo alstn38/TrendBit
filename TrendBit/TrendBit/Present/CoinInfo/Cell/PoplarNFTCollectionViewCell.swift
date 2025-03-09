@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 import SnapKit
 
 final class PoplarNFTCollectionViewCell: UICollectionViewCell, ReusableViewProtocol {
@@ -30,19 +31,43 @@ final class PoplarNFTCollectionViewCell: UICollectionViewCell, ReusableViewProto
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configureCell(with data: TrendNFTInfo) {
+        if let imageURL = URL(string: data.thumbImageURLString) {
+            coinImageView.kf.setImage(with: imageURL)
+        } else {
+            coinImageView.image = ImageAssets.star
+        }
+        
+        coinNameLabel.text = data.coinName
+        coinPriceLabel.text = data.floorPrice
+        variablePercentLabel.text = data.changePercent
+        
+        switch data.changeState {
+        case .rise:
+            arrowImageView.image = ImageAssets.arrowTriangleUpFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitRed)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitRed)
+        case .fall:
+            arrowImageView.image = ImageAssets.arrowTriangleDownFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitBlue)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitBlue)
+        case .even:
+            arrowImageView.image = nil
+            arrowImageView.tintColor = UIColor(resource: .trendBitNavy)
+            variablePercentLabel.textColor = UIColor(resource: .trendBitNavy)
+        }
+    }
+    
     private func configureView() {
         self.backgroundColor = UIColor(resource: .trendBitWhite)
         
         coinImageView.layer.cornerRadius = 18
         coinImageView.clipsToBounds = true
-        coinImageView.backgroundColor = .cyan // TODO: 서버 연결시 삭제
         
-        coinNameLabel.text = "TRUMP" // TODO: 서버 연결시 삭제
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 9, weight: .bold)
         coinNameLabel.numberOfLines = 1
         
-        coinPriceLabel.text = "0.66 ETH" // TODO: 서버 연결시 삭제
         coinPriceLabel.textColor = UIColor(resource: .trendBitGray)
         coinPriceLabel.font = .systemFont(ofSize: 9, weight: .regular)
         coinPriceLabel.numberOfLines = 1
@@ -52,11 +77,8 @@ final class PoplarNFTCollectionViewCell: UICollectionViewCell, ReusableViewProto
         variableStackView.alignment = .center
         variableStackView.distribution = .equalSpacing
         
-        arrowImageView.image = ImageAssets.arrowTriangleUpFill // TODO: 서버 연결시 삭제
         arrowImageView.contentMode = .scaleAspectFit
         
-        variablePercentLabel.text = "36.18%" // TODO: 서버 연결시 삭제
-        variablePercentLabel.textColor = UIColor(resource: .trendBitNavy) // TODO: 서버 연결시 삭제
         variablePercentLabel.font = .systemFont(ofSize: 9, weight: .bold)
     }
     
