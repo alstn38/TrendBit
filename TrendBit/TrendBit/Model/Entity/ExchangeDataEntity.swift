@@ -15,12 +15,3 @@ struct ExchangeDataEntity {
     let changeState: ChangeState
     let transactionAmount: String
 }
-
-extension ExchangeDataEntity {
-    
-    enum ChangeState {
-        case rise
-        case fall
-        case even
-    }
-}
