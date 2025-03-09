@@ -44,7 +44,7 @@ final class CoinInfoViewModel: InputOutputModel {
                 loadingIndicatorRelay.accept(true)
                 return NetworkManager.shared.request(router: endPoint, responseType: TrendInfoDTO.self)
             }
-            .bind(with: self) { owner, response in
+            .bind { response in
                 loadingIndicatorRelay.accept(false)
                 switch response {
                 case .success(let value):
