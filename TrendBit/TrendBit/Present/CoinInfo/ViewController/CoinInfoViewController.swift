@@ -92,7 +92,9 @@ final class CoinInfoViewController: UIViewController {
             .drive(with: self) { owner, viewType in
                 switch viewType {
                 case .search(let searchText):
-                    print("search ViewController 이동 - \(searchText)")
+                    let viewModel = SearchViewModel(searchedText: searchText)
+                    let viewController = SearchViewController(viewModel: viewModel)
+                    owner.navigationController?.pushViewController(viewController, animated: true)
                     
                 case .detail(let id):
                     print("detail ViewController 이동 - \(id)")
