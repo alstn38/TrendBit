@@ -213,7 +213,7 @@ final class CoinInfoViewController: UIViewController {
     
     private func poplarSearchCollectionFlowLayout() -> UICollectionViewFlowLayout {
         let cellCountOfRow = 2
-        let spacing: CGFloat = 24
+        let spacing: CGFloat = 6
         let screenWidth: CGFloat = view.window?.windowScene?.screen.bounds.width ?? UIScreen.main.bounds.width
         let cellWidth: CGFloat = (screenWidth - spacing) / CGFloat(cellCountOfRow)
         

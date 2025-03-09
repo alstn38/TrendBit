@@ -67,10 +67,12 @@ final class PoplarNFTCollectionViewCell: UICollectionViewCell, ReusableViewProto
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 9, weight: .bold)
         coinNameLabel.numberOfLines = 1
+        coinNameLabel.textAlignment = .center
         
         coinPriceLabel.textColor = UIColor(resource: .trendBitGray)
         coinPriceLabel.font = .systemFont(ofSize: 9, weight: .regular)
         coinPriceLabel.numberOfLines = 1
+        coinPriceLabel.textAlignment = .center
         
         variableStackView.axis = .horizontal
         variableStackView.spacing = 2
@@ -104,12 +106,12 @@ final class PoplarNFTCollectionViewCell: UICollectionViewCell, ReusableViewProto
         
         coinNameLabel.snp.makeConstraints {
             $0.top.equalTo(coinImageView.snp.bottom).offset(4)
-            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(4)
         }
         
         coinPriceLabel.snp.makeConstraints {
             $0.top.equalTo(coinNameLabel.snp.bottom).offset(4)
-            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(4)
         }
         
         variableStackView.snp.makeConstraints {

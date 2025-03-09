@@ -72,14 +72,17 @@ final class PoplarSearchCollectionViewCell: UICollectionViewCell, ReusableViewPr
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 12, weight: .bold)
         coinNameLabel.numberOfLines = 1
+        coinNameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         
         coinSubNameLabel.textColor = UIColor(resource: .trendBitGray)
         coinSubNameLabel.font = .systemFont(ofSize: 9, weight: .regular)
         coinSubNameLabel.numberOfLines = 1
+        coinSubNameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         
         arrowImageView.contentMode = .scaleAspectFit
         
         variablePercentLabel.font = .systemFont(ofSize: 9, weight: .bold)
+        variablePercentLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     }
     
     private func configureHierarchy() {
@@ -102,7 +105,7 @@ final class PoplarSearchCollectionViewCell: UICollectionViewCell, ReusableViewPr
         coinImageView.snp.makeConstraints {
             $0.size.equalTo(26)
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(rankLabel.snp.trailing).offset(12)
+            $0.leading.equalToSuperview().offset(30)
         }
         
         coinNameLabel.snp.makeConstraints {
