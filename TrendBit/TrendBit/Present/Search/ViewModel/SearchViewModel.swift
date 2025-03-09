@@ -16,7 +16,6 @@ final class SearchViewModel: InputOutputModel {
         let viewDidLoad: Observable<Void>
         let popButtonDidTap: Observable<Void>
         let searchTextDidChange: Observable<String>
-        let searchTitleStateDidChange: Observable<SearchViewType>
         let searchItemDidTap: Observable<SearchCoinEntity>
         let favoriteButtonDidTap: Observable<SearchCoinEntity>
     }
@@ -92,16 +91,6 @@ final class SearchViewModel: InputOutputModel {
                     scrollToTopRelay.accept(())
                 } else {
                     owner.searchedTextRelay.accept(searchedText)
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        input.searchTitleStateDidChange
-            .bind(with: self) { owner, searchViewType in
-                if searchViewType == .nft || searchViewType == .exchange {
-                    searchedDataRelay.accept([SearchCoinSection(items: [])])
-                } else {
-                    searchedDataRelay.accept([SearchCoinSection(items: owner.originalSearchCoinEntityRelay.value)])
                 }
             }
             .disposed(by: disposeBag)
