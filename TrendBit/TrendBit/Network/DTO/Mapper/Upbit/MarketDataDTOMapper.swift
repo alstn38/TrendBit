@@ -42,7 +42,7 @@ final class MarketDataDTOMapper {
         return NumberFormatterManager.shared.pointNumberString(from: dto.signedChangePrice)
     }
     
-    private func changeState(from dto: MarketDataDTO) -> ExchangeDataEntity.ChangeState {
+    private func changeState(from dto: MarketDataDTO) -> ChangeState {
         if dto.change == "EVEN" {
             return .even
         } else if dto.change == "RISE" {
