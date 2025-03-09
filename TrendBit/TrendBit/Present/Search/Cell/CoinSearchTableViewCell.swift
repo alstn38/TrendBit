@@ -6,16 +6,21 @@
 //
 
 import UIKit
+import Kingfisher
+import RxSwift
+import RxCocoa
 import SnapKit
 
 final class CoinSearchTableViewCell: UITableViewCell, ReusableViewProtocol {
+    
+    var disposeBag = DisposeBag()
     
     private let coinImageView = UIImageView()
     private let coinNameLabel = UILabel()
     private let coinSubNameLabel = UILabel()
     private let hashTagBackgroundView = UIView()
     private let hashTagLabel = UILabel()
-    private let favoriteButton = UIButton()
+    let favoriteButton = UIButton()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -30,31 +35,46 @@ final class CoinSearchTableViewCell: UITableViewCell, ReusableViewProtocol {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.disposeBag = DisposeBag()
+    }
+    
+    func configureCell(with data: SearchCoinEntity) {
+        if let imageURL = URL(string: data.thumbImageURLString) {
+            coinImageView.kf.setImage(with: imageURL)
+        } else {
+            coinImageView.image = ImageAssets.star
+        }
+        
+        coinNameLabel.text = data.coinSymbol
+        coinSubNameLabel.text = data.coinName
+        hashTagLabel.text = data.rank
+        
+        let favoriteImage = data.favorite ? ImageAssets.starFill : ImageAssets.star
+        favoriteButton.setImage(favoriteImage, for: .normal)
+    }
+    
     private func configureView() {
         contentView.backgroundColor = UIColor(resource: .trendBitWhite)
         
         coinImageView.layer.cornerRadius = 18
         coinImageView.clipsToBounds = true
-        coinImageView.backgroundColor = .cyan // TODO: 서버 연결시 삭제
         
-        coinNameLabel.text = "TRUMP" // TODO: 서버 연결시 삭제
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 14, weight: .bold)
         coinNameLabel.numberOfLines = 1
         
-        coinSubNameLabel.text = "Official Trump" // TODO: 서버 연결시 삭제
         coinSubNameLabel.textColor = UIColor(resource: .trendBitGray)
         coinSubNameLabel.font = .systemFont(ofSize: 12, weight: .regular)
         coinSubNameLabel.numberOfLines = 1
         
         hashTagBackgroundView.backgroundColor = UIColor(resource: .trendBitGray).withAlphaComponent(0.3)
         
-        hashTagLabel.text = "#1" // TODO: 서버 연결시 삭제
         hashTagLabel.textColor = UIColor(resource: .trendBitGray)
         hashTagLabel.font = .systemFont(ofSize: 9, weight: .bold)
         hashTagLabel.numberOfLines = 1
         
-        favoriteButton.setImage(ImageAssets.star, for: .normal)
         favoriteButton.tintColor = UIColor(resource: .trendBitNavy)
     }
     
