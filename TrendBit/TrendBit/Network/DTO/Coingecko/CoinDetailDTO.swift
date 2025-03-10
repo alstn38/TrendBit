@@ -12,24 +12,24 @@ struct CoinDetailDTO: Decodable {
     let symbol: String
     let name: String
     let image: String
-    let currentPrice: Int
-    let marketCap: Int
+    let currentPrice: Double
+    let marketCap: Double
     let marketCapRank: Int
-    let fullyDilutedValuation: Int
-    let totalVolume: Int
-    let high24H: Int
-    let low24H: Int
-    let priceChange24H: Double
-    let priceChangePercentage24H: Double
-    let marketCapChange24H: Double
-    let marketCapChangePercentage24H: Double
-    let circulatingSupply: Int
-    let totalSupply: Int
-    let maxSupply: Int
-    let ath: Int
+    let fullyDilutedValuation: Double?
+    let totalVolume: Double
+    let high24H: Double?
+    let low24H: Double?
+    let priceChange24H: Double?
+    let priceChangePercentage24H: Double?
+    let marketCapChange24H: Double?
+    let marketCapChangePercentage24H: Double?
+    let circulatingSupply: Double?
+    let totalSupply: Double?
+    let maxSupply: Double?
+    let ath: Double
     let athChangePercentage: Double
     let athDate: String
-    let atl: Int
+    let atl: Double
     let atlChangePercentage: Double
     let atlDate: String
     let lastUpdated: String
@@ -67,4 +67,13 @@ struct CoinDetailDTO: Decodable {
 
 struct SparklineIn7D: Decodable {
     let price: [Double]
+}
+
+// MARK: - To Entity Method
+extension CoinDetailDTO {
+    
+    func toEntity() -> CoinDetailEntity {
+        let mapper = CoinDetailDTOMapper()
+        return mapper.toEntity(from: self)
+    }
 }
