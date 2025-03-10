@@ -14,15 +14,19 @@ enum StringLiterals {
     }
     
     enum Alert {
+        static let guideTitle: String = "안내"
         static let networkError: String = "네트워크 에러"
         static let localDataError: String = "로컬 데이터 에러"
         static let confirm: String = "확인"
+        static let connectError: String = "네트워크 연결이 일시적으로 원활하지 않습니다. 데이터 또는 Wi-Fi 연결 상태를 확인해주세요."
+        static let retry: String = "다시 시도하기"
     }
     
     enum Toast {
         static let notReady: String = "준비 중입니다"
         static let addFavoriteCoin: String = "이 즐겨찾기되었습니다."
         static let deleteFavoriteCoin: String = "이 즐겨찾기에서 제거되었습니다."
+        static let connectError: String = "네트워크 통신이 원활하지 않습니다."
     }
     
     enum TapBar {
