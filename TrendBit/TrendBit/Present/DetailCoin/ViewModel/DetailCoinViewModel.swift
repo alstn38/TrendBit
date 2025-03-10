@@ -10,6 +10,10 @@ import RxDataSources
 import RxSwift
 import RxCocoa
 
+protocol DetailCoinViewModelDelegate: AnyObject {
+    func detailCoinViewModelDelegate(_ viewModel: DetailCoinViewModel, didChangeFavorite coinID: String)
+}
+
 final class DetailCoinViewModel: InputOutputModel {
     
     struct Input {
@@ -28,6 +32,7 @@ final class DetailCoinViewModel: InputOutputModel {
         let presentError: Driver<(title: String, message: String)>
     }
     
+    weak var delegate: DetailCoinViewModelDelegate?
     private let coinID: String
     private let coinFavoriteService: CoinFavoriteService
     private let disposeBag = DisposeBag()
@@ -81,14 +86,16 @@ final class DetailCoinViewModel: InputOutputModel {
         
         input.favoriteButtonDidTap
             .bind(with: self) { owner, _ in
-                let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: owner.coinID)
+                let coinID = owner.coinID
+                let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: coinID)
                 do {
                     if isFavorite {
-                        try owner.coinFavoriteService.deleteItem(coinID: owner.coinID)
+                        try owner.coinFavoriteService.deleteItem(coinID: coinID)
                     } else {
-                        try owner.coinFavoriteService.createItem(coinID: owner.coinID)
+                        try owner.coinFavoriteService.createItem(coinID: coinID)
                     }
                     isFavoriteCoinRelay.accept(!isFavorite)
+                    owner.delegate?.detailCoinViewModelDelegate(owner, didChangeFavorite: coinID)
                 } catch {
                     presentErrorRelay.accept((
                         title: StringLiterals.Alert.localDataError,
