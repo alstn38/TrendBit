@@ -64,7 +64,7 @@ extension CoingeckoEndPoint {
                 "vs_currency": "krw",
                 "locale": "ko",
                 "ids": id,
-                "sparkline": true,
+                "sparkline": "true",
             ]
         }
     }
