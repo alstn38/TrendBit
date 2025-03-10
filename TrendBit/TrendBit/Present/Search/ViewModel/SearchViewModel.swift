@@ -18,6 +18,7 @@ final class SearchViewModel: InputOutputModel {
         let searchTextDidChange: Observable<String>
         let searchItemDidTap: Observable<SearchCoinEntity>
         let favoriteButtonDidTap: Observable<SearchCoinEntity>
+        let favoriteInfoDidUpdate: Observable<Void>
     }
     
     struct Output {
@@ -31,7 +32,7 @@ final class SearchViewModel: InputOutputModel {
     
     private let searchedTextRelay: BehaviorRelay<String>
     private let coinFavoriteService: CoinFavoriteService
-    private let originalSearchCoinEntityRelay: BehaviorRelay<[SearchCoinEntity]> = BehaviorRelay(value: [])
+//    private let originalSearchCoinEntityRelay: BehaviorRelay<[SearchCoinEntity]> = BehaviorRelay(value: [])
     private let disposeBag = DisposeBag()
     
     init(
@@ -68,7 +69,7 @@ final class SearchViewModel: InputOutputModel {
                     let favoritedCoinEntity = searchCoinEntity.map {
                         $0.setFavoriteState(owner.coinFavoriteService.isFavoriteCoin(at: $0.coinID))
                     }
-                    owner.originalSearchCoinEntityRelay.accept(favoritedCoinEntity)
+                    searchedDataRelay.accept([SearchCoinSection(items: favoritedCoinEntity)])
                     
                 case .failure(let error):
                     presentErrorRelay.accept((
@@ -102,12 +103,13 @@ final class SearchViewModel: InputOutputModel {
         
         input.favoriteButtonDidTap
             .bind(with: self) { owner, searchCoinEntity in
-                let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: searchCoinEntity.coinID)
+                let coinID = searchCoinEntity.coinID
+                let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: coinID)
                 do {
                     if isFavorite {
-                        try owner.coinFavoriteService.deleteItem(coinID: searchCoinEntity.coinID)
+                        try owner.coinFavoriteService.deleteItem(coinID: coinID)
                     } else {
-                        try owner.coinFavoriteService.createItem(coinID: searchCoinEntity.coinID)
+                        try owner.coinFavoriteService.createItem(coinID: coinID)
                     }
                 } catch {
                     presentErrorRelay.accept((
@@ -116,16 +118,22 @@ final class SearchViewModel: InputOutputModel {
                     ))
                 }
                 
-                let favoritedCoinEntity = owner.originalSearchCoinEntityRelay.value.map {
+                guard let searchCoinEntity = searchedDataRelay.value.first?.items else { return }
+                let favoritedCoinEntity = searchCoinEntity.map {
                     $0.setFavoriteState(owner.coinFavoriteService.isFavoriteCoin(at: $0.coinID))
                 }
-                owner.originalSearchCoinEntityRelay.accept(favoritedCoinEntity)
+                searchedDataRelay.accept([SearchCoinSection(items: favoritedCoinEntity)])
             }
             .disposed(by: disposeBag)
         
-        originalSearchCoinEntityRelay
-            .map { [SearchCoinSection(items: $0)] }
-            .bind(to: searchedDataRelay)
+        input.favoriteInfoDidUpdate
+            .bind(with: self) { owner, _ in
+                guard let searchCoinEntity = searchedDataRelay.value.first?.items else { return }
+                let favoritedCoinEntity = searchCoinEntity.map {
+                    $0.setFavoriteState(owner.coinFavoriteService.isFavoriteCoin(at: $0.coinID))
+                }
+                searchedDataRelay.accept([SearchCoinSection(items: favoritedCoinEntity)])
+            }
             .disposed(by: disposeBag)
         
         return Output(

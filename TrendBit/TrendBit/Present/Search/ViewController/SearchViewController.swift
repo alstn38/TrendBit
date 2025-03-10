@@ -14,6 +14,7 @@ import SnapKit
 final class SearchViewController: UIViewController {
     
     private let viewModel: SearchViewModel
+    private let favoriteInfoUpdate = PublishRelay<Void>()
     private let favoriteButtonDidTapRelay = PublishRelay<SearchCoinEntity>()
     private let searchStateRelay: BehaviorRelay<SearchViewModel.SearchViewType> = BehaviorRelay(value: .coin)
     private let disposeBag = DisposeBag()
@@ -80,7 +81,8 @@ final class SearchViewController: UIViewController {
             searchTextDidChange: searchTextField.rx.controlEvent(.editingDidEnd)
                 .withLatestFrom(searchTextField.rx.text.orEmpty).asObservable(),
             searchItemDidTap: searchTableView.rx.modelSelected(SearchCoinEntity.self).asObservable(),
-            favoriteButtonDidTap: favoriteButtonDidTapRelay.asObservable()
+            favoriteButtonDidTap: favoriteButtonDidTapRelay.asObservable(),
+            favoriteInfoDidUpdate: favoriteInfoUpdate.asObservable()
         )
         
         let output = viewModel.transform(from: input)
@@ -108,6 +110,7 @@ final class SearchViewController: UIViewController {
                 case .detail(let id):
                     let viewModel = DetailCoinViewModel(coinID: id)
                     let viewController = DetailCoinViewController(viewModel: viewModel)
+                    owner.configureDetailCoinViewModelDelegate(viewModel)
                     owner.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
@@ -147,7 +150,7 @@ final class SearchViewController: UIViewController {
                 .bind(with: self, onNext: { owner, type in
                     owner.searchStateRelay.accept(type)
                     owner.configureSearchTitleState(type)
-                    owner.pageScrollView(to: type.rawValue)
+                    owner.configurePageScrollView(to: type.rawValue)
                 })
                 .disposed(by: disposeBag)
         }
@@ -330,8 +333,20 @@ final class SearchViewController: UIViewController {
         }
     }
     
-    private func pageScrollView(to index: Int) {
+    private func configurePageScrollView(to index: Int) {
         let screenWidth: CGFloat = view.window?.windowScene?.screen.bounds.width ?? UIScreen.main.bounds.width
         scrollView.setContentOffset(CGPoint(x: Int(screenWidth) * index, y: 0), animated: true)
+    }
+    
+    private func configureDetailCoinViewModelDelegate(_ viewModel: DetailCoinViewModel) {
+        viewModel.delegate = self
+    }
+}
+
+// MARK: - DetailCoinViewModelDelegate
+extension SearchViewController: DetailCoinViewModelDelegate {
+    
+    func detailCoinViewModelDelegate(_ viewModel: DetailCoinViewModel, didChangeFavorite coinID: String) {
+        favoriteInfoUpdate.accept(())
     }
 }
