@@ -12,6 +12,7 @@ import RxSwift
 import RxCocoa
 import SwiftUI
 import SnapKit
+import Toast
 
 final class DetailCoinViewController: UIViewController {
     
@@ -101,6 +102,12 @@ final class DetailCoinViewController: UIViewController {
             .drive(with: self) { owner, value in
                 let (title, message) = value
                 owner.presentAlert(title: title, message: message)
+            }
+            .disposed(by: disposeBag)
+        
+        output.presentToastError
+            .drive(with: self) { owner, message in
+                owner.view.makeToast(message)
             }
             .disposed(by: disposeBag)
     }

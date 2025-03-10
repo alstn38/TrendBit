@@ -30,6 +30,7 @@ final class DetailCoinViewModel: InputOutputModel {
         let moveToOtherView: Driver<MoveToOtherViewType>
         let loadingIndicator: Driver<Bool>
         let presentError: Driver<(title: String, message: String)>
+        let presentToastError: Driver<String>
     }
     
     weak var delegate: DetailCoinViewModelDelegate?
@@ -51,6 +52,7 @@ final class DetailCoinViewModel: InputOutputModel {
         let moveToOtherViewRelay = PublishRelay<MoveToOtherViewType>()
         let loadingIndicatorRelay = BehaviorRelay(value: false)
         let presentErrorRelay = PublishRelay<(title: String, message: String)>()
+        let presentToastErrorRelay = PublishRelay<String>()
         
         input.viewDidLoad
             .withUnretained(self)
@@ -107,8 +109,7 @@ final class DetailCoinViewModel: InputOutputModel {
         
         Observable.merge(input.moreTypeInfoButtonDidTap, input.investmentInfoButtonDidTap)
             .bind { _ in
-                print("준비 중입니다.")
-                // TODO: 준비중입니다 토스트 뷰 사용하기
+                presentToastErrorRelay.accept(StringLiterals.Toast.notReady)
             }
             .disposed(by: disposeBag)
         
@@ -117,7 +118,8 @@ final class DetailCoinViewModel: InputOutputModel {
             detailCoinData: detailCoinDataRelay.asDriver(),
             moveToOtherView: moveToOtherViewRelay.asDriver(onErrorJustReturn: .pop),
             loadingIndicator: loadingIndicatorRelay.asDriver(),
-            presentError: presentErrorRelay.asDriver(onErrorJustReturn: (title: "", message: ""))
+            presentError: presentErrorRelay.asDriver(onErrorJustReturn: (title: "", message: "")),
+            presentToastError: presentToastErrorRelay.asDriver(onErrorJustReturn: "")
         )
     }
 }
