@@ -240,30 +240,3 @@ final class CoinInfoViewController: UIViewController {
         return layout
     }
 }
-
-// TODO: 이후 삭제
-extension CoinInfoViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == poplarSearchCollectionView {
-            return 14
-        } else {
-            return 7
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == poplarSearchCollectionView {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: PoplarSearchCollectionViewCell.identifier,
-                for: indexPath
-            ) as? PoplarSearchCollectionViewCell else { return UICollectionViewCell() }
-            return cell
-        } else {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: PoplarNFTCollectionViewCell.identifier,
-                for: indexPath
-            ) as? PoplarNFTCollectionViewCell else { return UICollectionViewCell() }
-            return cell
-        }
-    }
-}

@@ -185,20 +185,3 @@ final class ExchangeViewController: UIViewController {
         }
     }
 }
-
-// TODO: 삭제
-extension ExchangeViewController: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 30
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: ExchangeTableViewCell.identifier,
-            for: indexPath
-        ) as? ExchangeTableViewCell else { return UITableViewCell() }
-        
-        return cell
-    }
-}
