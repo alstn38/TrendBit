@@ -21,6 +21,7 @@ final class CoinDetailDTOMapper {
     
     private func coinDetailInfo(from dto: CoinDetailDTO) -> CoinDetailInfo {
         return CoinDetailInfo(
+            coinName: dto.name,
             coinSymbol: dto.symbol,
             imageURLString: dto.image,
             favorite: false,

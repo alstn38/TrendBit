@@ -15,6 +15,7 @@ struct CoinDetailEntity {
 }
 
 struct CoinDetailInfo {
+    let coinName: String
     let coinSymbol: String
     let imageURLString: String
     let favorite: Bool
@@ -48,6 +49,7 @@ extension CoinDetailEntity {
     
     func setFavoriteState(_ isFavorite: Bool) -> CoinDetailEntity {
         let coinDetailInfo = CoinDetailInfo(
+            coinName: self.coinDetailInfo.coinName,
             coinSymbol: self.coinDetailInfo.coinSymbol,
             imageURLString: self.coinDetailInfo.imageURLString,
             favorite: isFavorite,
@@ -68,6 +70,7 @@ extension CoinDetailEntity {
     static func dummy() -> CoinDetailEntity {
         return CoinDetailEntity(
             coinDetailInfo: CoinDetailInfo(
+                coinName: "",
                 coinSymbol: "",
                 imageURLString: "",
                 favorite: false,
