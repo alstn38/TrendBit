@@ -133,6 +133,12 @@ final class SearchViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
+        output.presentToastError
+            .drive(with: self) { owner, message in
+                owner.view.makeToast(message)
+            }
+            .disposed(by: disposeBag)
+        
         scrollView.rx.didEndDecelerating
             .withLatestFrom(scrollView.rx.contentOffset)
             .bind(with: self) { owner, point in
@@ -262,8 +268,7 @@ final class SearchViewController: UIViewController {
         
         scrollView.snp.makeConstraints {
             $0.top.equalTo(pageSelectBackgroundView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         
         contentView.snp.makeConstraints {

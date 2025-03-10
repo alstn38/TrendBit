@@ -28,11 +28,11 @@ final class SearchViewModel: InputOutputModel {
         let moveToOtherView: Driver<MoveToOtherViewType>
         let loadingIndicator: Driver<Bool>
         let presentError: Driver<(title: String, message: String)>
+        let presentToastError: Driver<String>
     }
     
     private let searchedTextRelay: BehaviorRelay<String>
     private let coinFavoriteService: CoinFavoriteService
-//    private let originalSearchCoinEntityRelay: BehaviorRelay<[SearchCoinEntity]> = BehaviorRelay(value: [])
     private let disposeBag = DisposeBag()
     
     init(
@@ -54,6 +54,7 @@ final class SearchViewModel: InputOutputModel {
         let moveToOtherViewRelay = PublishRelay<MoveToOtherViewType>()
         let loadingIndicatorRelay = BehaviorRelay(value: true)
         let presentErrorRelay = PublishRelay<(title: String, message: String)>()
+        let presentToastErrorRelay = PublishRelay<String>()
         
         Observable.combineLatest(input.viewDidLoad, searchedTextRelay)
             .map { CoingeckoEndPoint.search(query: $1) }
@@ -104,12 +105,15 @@ final class SearchViewModel: InputOutputModel {
         input.favoriteButtonDidTap
             .bind(with: self) { owner, searchCoinEntity in
                 let coinID = searchCoinEntity.coinID
+                let coinName = searchCoinEntity.coinName
                 let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: coinID)
                 do {
                     if isFavorite {
                         try owner.coinFavoriteService.deleteItem(coinID: coinID)
+                        presentToastErrorRelay.accept(coinName + StringLiterals.Toast.deleteFavoriteCoin)
                     } else {
                         try owner.coinFavoriteService.createItem(coinID: coinID)
+                        presentToastErrorRelay.accept(coinName + StringLiterals.Toast.addFavoriteCoin)
                     }
                 } catch {
                     presentErrorRelay.accept((
@@ -142,7 +146,8 @@ final class SearchViewModel: InputOutputModel {
             scrollToTop: scrollToTopRelay.asDriver(onErrorJustReturn: ()),
             moveToOtherView: moveToOtherViewRelay.asDriver(onErrorJustReturn: .pop),
             loadingIndicator: loadingIndicatorRelay.asDriver(),
-            presentError: presentErrorRelay.asDriver(onErrorJustReturn: (title: "", message: ""))
+            presentError: presentErrorRelay.asDriver(onErrorJustReturn: (title: "", message: "")),
+            presentToastError: presentToastErrorRelay.asDriver(onErrorJustReturn: "")
         )
     }
 }

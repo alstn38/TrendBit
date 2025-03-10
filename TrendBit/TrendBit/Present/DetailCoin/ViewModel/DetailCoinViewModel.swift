@@ -87,14 +87,18 @@ final class DetailCoinViewModel: InputOutputModel {
             .disposed(by: disposeBag)
         
         input.favoriteButtonDidTap
-            .bind(with: self) { owner, _ in
+            .withLatestFrom(detailCoinDataRelay)
+            .map { $0.coinDetailInfo.coinName }
+            .bind(with: self) { owner, coinName in
                 let coinID = owner.coinID
                 let isFavorite = owner.coinFavoriteService.isFavoriteCoin(at: coinID)
                 do {
                     if isFavorite {
                         try owner.coinFavoriteService.deleteItem(coinID: coinID)
+                        presentToastErrorRelay.accept(coinName + StringLiterals.Toast.deleteFavoriteCoin)
                     } else {
                         try owner.coinFavoriteService.createItem(coinID: coinID)
+                        presentToastErrorRelay.accept(coinName + StringLiterals.Toast.addFavoriteCoin)
                     }
                     isFavoriteCoinRelay.accept(!isFavorite)
                     owner.delegate?.detailCoinViewModelDelegate(owner, didChangeFavorite: coinID)
