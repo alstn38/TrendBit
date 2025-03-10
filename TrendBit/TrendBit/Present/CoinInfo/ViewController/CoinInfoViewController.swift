@@ -222,9 +222,9 @@ final class CoinInfoViewController: UIViewController {
         let cellWidth: CGFloat = (screenWidth - spacing) / CGFloat(cellCountOfRow)
         
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = .zero
-        layout.minimumInteritemSpacing = spacing
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = spacing
+        layout.minimumInteritemSpacing = .zero
         layout.itemSize = CGSize(width: cellWidth, height: 50)
         
         return layout
