@@ -123,6 +123,7 @@ final class DetailCoinViewController: UIViewController {
         coinNameLabel.font = .systemFont(ofSize: 18, weight: .bold)
         
         favoriteButton.contentMode = .scaleAspectFit
+        favoriteButton.tintColor = UIColor(resource: .trendBitNavy)
         
         lineView.backgroundColor = UIColor(resource: .trendBitGray).withAlphaComponent(0.3)
         
