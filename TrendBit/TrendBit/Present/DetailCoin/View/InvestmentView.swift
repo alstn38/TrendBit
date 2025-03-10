@@ -11,7 +11,7 @@ import SnapKit
 final class InvestmentView: UIView {
     
     private let titleLabel = UILabel()
-    private lazy var moreButton = UIButton(configuration: configureButtonConfiguration())
+    lazy var moreButton = UIButton(configuration: configureButtonConfiguration())
     private let infoBackgroundView = UIView()
     private let capitalizationTitleLabel = UILabel()
     private let capitalizationLabel = UILabel()
@@ -33,6 +33,12 @@ final class InvestmentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configureView(_ data: CoinDetailInvestmentData) {
+        capitalizationLabel.text = data.capitalizationPrice
+        fdvLabel.text = data.fdvPrice
+        volumeLabel.text = data.volumePrice
+    }
+    
     private func configureView() {
         titleLabel.text = StringLiterals.DetailCoin.typeInfoTitle
         titleLabel.textColor = UIColor(resource: .trendBitNavy)
@@ -45,7 +51,6 @@ final class InvestmentView: UIView {
         capitalizationTitleLabel.textColor = UIColor(resource: .trendBitGray)
         capitalizationTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        capitalizationLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         capitalizationLabel.textColor = UIColor(resource: .trendBitNavy)
         capitalizationLabel.font = .systemFont(ofSize: 14, weight: .bold)
         capitalizationLabel.numberOfLines = 1
@@ -54,7 +59,6 @@ final class InvestmentView: UIView {
         fdvTitleLabel.textColor = UIColor(resource: .trendBitGray)
         fdvTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        fdvLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         fdvLabel.textColor = UIColor(resource: .trendBitNavy)
         fdvLabel.font = .systemFont(ofSize: 14, weight: .bold)
         fdvLabel.numberOfLines = 1
@@ -63,7 +67,6 @@ final class InvestmentView: UIView {
         volumeTitleLabel.textColor = UIColor(resource: .trendBitGray)
         volumeTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        volumeLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         volumeLabel.textColor = UIColor(resource: .trendBitNavy)
         volumeLabel.font = .systemFont(ofSize: 14, weight: .bold)
         volumeLabel.numberOfLines = 1
