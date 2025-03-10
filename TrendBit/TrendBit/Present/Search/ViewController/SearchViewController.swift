@@ -147,6 +147,7 @@ final class SearchViewController: UIViewController {
                 .bind(with: self, onNext: { owner, type in
                     owner.searchStateRelay.accept(type)
                     owner.configureSearchTitleState(type)
+                    owner.pageScrollView(to: type.rawValue)
                 })
                 .disposed(by: disposeBag)
         }
@@ -327,5 +328,10 @@ final class SearchViewController: UIViewController {
             $0.centerX.equalTo(searchTitleButton[inputType.rawValue].snp.centerX)
             $0.width.equalTo(searchTitleButton[inputType.rawValue].snp.width)
         }
+    }
+    
+    private func pageScrollView(to index: Int) {
+        let screenWidth: CGFloat = view.window?.windowScene?.screen.bounds.width ?? UIScreen.main.bounds.width
+        scrollView.setContentOffset(CGPoint(x: Int(screenWidth) * index, y: 0), animated: true)
     }
 }
