@@ -11,7 +11,7 @@ import SnapKit
 final class TypeInfoView: UIView {
     
     private let titleLabel = UILabel()
-    private lazy var moreButton = UIButton(configuration: configureButtonConfiguration())
+    lazy var moreButton = UIButton(configuration: configureButtonConfiguration())
     private let infoBackgroundView = UIView()
     private let highPriceTitleLabel = UILabel()
     private let highPriceLabel = UILabel()
@@ -37,6 +37,15 @@ final class TypeInfoView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configureView(_ data: CoinDetailTypeData) {
+        highPriceLabel.text = data.highPrice
+        lowPriceLabel.text = data.lowPrice
+        allHighPriceLabel.text = data.allHighPrice
+        allHighDateLabel.text = data.allHighDate
+        allLowPriceLabel.text = data.allLowPrice
+        allLowDateLabel.text = data.allLowDate
+    }
+    
     private func configureView() {
         titleLabel.text = StringLiterals.DetailCoin.typeInfoTitle
         titleLabel.textColor = UIColor(resource: .trendBitNavy)
@@ -49,7 +58,6 @@ final class TypeInfoView: UIView {
         highPriceTitleLabel.textColor = UIColor(resource: .trendBitGray)
         highPriceTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        highPriceLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         highPriceLabel.textColor = UIColor(resource: .trendBitNavy)
         highPriceLabel.font = .systemFont(ofSize: 14, weight: .bold)
         highPriceLabel.numberOfLines = 1
@@ -58,7 +66,6 @@ final class TypeInfoView: UIView {
         lowPriceTitleLabel.textColor = UIColor(resource: .trendBitGray)
         lowPriceTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        lowPriceLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         lowPriceLabel.textColor = UIColor(resource: .trendBitNavy)
         lowPriceLabel.font = .systemFont(ofSize: 14, weight: .bold)
         lowPriceLabel.numberOfLines = 1
@@ -67,12 +74,10 @@ final class TypeInfoView: UIView {
         allHighPriceTitleLabel.textColor = UIColor(resource: .trendBitGray)
         allHighPriceTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        allHighPriceLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         allHighPriceLabel.textColor = UIColor(resource: .trendBitNavy)
         allHighPriceLabel.font = .systemFont(ofSize: 14, weight: .bold)
         allHighPriceLabel.numberOfLines = 1
         
-        allHighDateLabel.text = "25년 1월 20일" // TODO: 서버 연결시 삭제
         allHighDateLabel.textColor = UIColor(resource: .trendBitGray)
         allHighDateLabel.font = .systemFont(ofSize: 12, weight: .regular)
         
@@ -80,12 +85,10 @@ final class TypeInfoView: UIView {
         allLowPriceTitleLabel.textColor = UIColor(resource: .trendBitGray)
         allLowPriceTitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         
-        allLowPriceLabel.text = "₩142,060,809" // TODO: 서버 연결시 삭제
         allLowPriceLabel.textColor = UIColor(resource: .trendBitNavy)
         allLowPriceLabel.font = .systemFont(ofSize: 14, weight: .bold)
         allLowPriceLabel.numberOfLines = 1
         
-        allLowDateLabel.text = "25년 1월 20일" // TODO: 서버 연결시 삭제
         allLowDateLabel.textColor = UIColor(resource: .trendBitGray)
         allLowDateLabel.font = .systemFont(ofSize: 12, weight: .regular)
     }
