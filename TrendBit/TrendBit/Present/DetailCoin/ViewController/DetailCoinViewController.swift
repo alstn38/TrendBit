@@ -6,10 +6,17 @@
 //
 
 import UIKit
+import Kingfisher
+import RxDataSources
+import RxSwift
+import RxCocoa
 import SwiftUI
 import SnapKit
 
 final class DetailCoinViewController: UIViewController {
+    
+    private let viewModel: DetailCoinViewModel
+    private let disposeBag = DisposeBag()
     
     private let popButton = UIButton()
     private let titleStackView = UIStackView()
@@ -27,12 +34,75 @@ final class DetailCoinViewController: UIViewController {
     private let typeInfoView = TypeInfoView()
     private let investmentView = InvestmentView()
     
+    init(viewModel: DetailCoinViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureBind()
         configureView()
         configureHierarchy()
         configureLayout()
+    }
+    
+    private func configureBind() {
+        let input = DetailCoinViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            popButtonDidTap: popButton.rx.tap.asObservable(),
+            favoriteButtonDidTap: favoriteButton.rx.tap.asObservable(),
+            moreTypeInfoButtonDidTap: typeInfoView.moreButton.rx.tap.asObservable(),
+            investmentInfoButtonDidTap: investmentView.moreButton.rx.tap.asObservable()
+        )
+        
+        let output = viewModel.transform(from: input)
+        
+        output.isFavoriteCoin
+            .map { $0 ? ImageAssets.starFill : ImageAssets.star }
+            .drive(favoriteButton.rx.image())
+            .disposed(by: disposeBag)
+        
+        output.detailCoinData
+            .drive(with: self) { owner, detailCoinData in
+                owner.configureCoinDetailInfo(detailCoinData.coinDetailInfo)
+                owner.configureCoinDetailChartData(detailCoinData.coinDetailChartData)
+                owner.typeInfoView.configureView(detailCoinData.coinDetailTypeData)
+                owner.investmentView.configureView(detailCoinData.coinDetailInvestmentData)
+            }
+            .disposed(by: disposeBag)
+        
+        output.moveToOtherView
+            .drive(with: self) { owner, viewType in
+                switch viewType {
+                case .pop:
+                    owner.navigationController?.popViewController(animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.loadingIndicator
+            .drive { isAnimate in
+                if isAnimate {
+                    LoadingIndicator.showLoading()
+                } else {
+                    LoadingIndicator.hideLoading()
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.presentError
+            .drive(with: self) { owner, value in
+                let (title, message) = value
+                owner.presentAlert(title: title, message: message)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func configureView() {
@@ -45,33 +115,27 @@ final class DetailCoinViewController: UIViewController {
         titleStackView.spacing = 4
         titleStackView.distribution = .equalSpacing
         
-        coinImageView.image = UIImage(systemName: "star") // TODO: 서버 연결시 제거
         coinImageView.contentMode = .scaleAspectFit
+        coinImageView.layer.cornerRadius = 12
+        coinImageView.clipsToBounds = true
         
-        coinNameLabel.text = "BTC" // TODO: 서버 연결시 제거
         coinNameLabel.textColor = UIColor(resource: .trendBitNavy)
         coinNameLabel.font = .systemFont(ofSize: 18, weight: .bold)
         
-        favoriteButton.setImage(ImageAssets.star, for: .normal) // TODO: 서버 연결시 제거
         favoriteButton.contentMode = .scaleAspectFit
         
         lineView.backgroundColor = UIColor(resource: .trendBitGray).withAlphaComponent(0.3)
         
         contentView.backgroundColor = UIColor(resource: .trendBitWhite)
         
-        priceLabel.text = "₩140,375,904" // TODO: 서버 연결시 제거
         priceLabel.textColor = UIColor(resource: .trendBitNavy)
         priceLabel.font = .systemFont(ofSize: 24, weight: .bold)
         priceLabel.numberOfLines = 1
         
-        arrowImageView.image = ImageAssets.arrowTriangleDownFill // TODO: 서버 연결시 제거
         arrowImageView.contentMode = .scaleAspectFit
         
-        percentageLabel.text = "0.98%" // TODO: 서버 연결시 제거
-        percentageLabel.textColor = UIColor(resource: .trendBitNavy) // TODO: 서버 연결시 제거
         percentageLabel.font = .systemFont(ofSize: 12, weight: .bold)
         
-        updateTimeLabel.text = "2/15 18:00:45 업데이트" // TODO: 서버 연결시 제거
         updateTimeLabel.textColor = UIColor(resource: .trendBitNavy).withAlphaComponent(0.3)
         updateTimeLabel.font = .systemFont(ofSize: 10, weight: .regular)
     }
@@ -118,6 +182,10 @@ final class DetailCoinViewController: UIViewController {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(6)
             $0.centerX.equalToSuperview()
             $0.centerY.equalTo(popButton)
+        }
+        
+        coinImageView.snp.makeConstraints {
+            $0.size.equalTo(24)
         }
         
         favoriteButton.snp.makeConstraints {
@@ -182,5 +250,33 @@ final class DetailCoinViewController: UIViewController {
             $0.height.equalTo(260)
             $0.bottom.equalToSuperview().inset(18)
         }
+    }
+    
+    private func configureCoinDetailInfo(_ data: CoinDetailInfo) {
+        coinImageView.kf.setImage(with: URL(string: data.imageURLString))
+        
+        coinNameLabel.text = data.coinSymbol
+        priceLabel.text = data.currentPrice
+        percentageLabel.text = data.changePercent
+        updateTimeLabel.text = data.updateTime
+        
+        switch data.changeState {
+        case .rise:
+            arrowImageView.image = ImageAssets.arrowTriangleUpFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitRed)
+            percentageLabel.textColor = UIColor(resource: .trendBitRed)
+        case .fall:
+            arrowImageView.image = ImageAssets.arrowTriangleDownFill
+            arrowImageView.tintColor = UIColor(resource: .trendBitBlue)
+            percentageLabel.textColor = UIColor(resource: .trendBitBlue)
+        case .even:
+            arrowImageView.image = nil
+            arrowImageView.tintColor = UIColor(resource: .trendBitNavy)
+            percentageLabel.textColor = UIColor(resource: .trendBitNavy)
+        }
+    }
+    
+    private func configureCoinDetailChartData(_ data: [CoinDetailChartData]) {
+        coinCartView.rootView.configureChart(data)
     }
 }
