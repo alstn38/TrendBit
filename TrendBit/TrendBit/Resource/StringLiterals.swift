@@ -19,6 +19,10 @@ enum StringLiterals {
         static let confirm: String = "확인"
     }
     
+    enum Toast {
+        static let notReady: String = "준비 중입니다"
+    }
+    
     enum TapBar {
         static let exchangeTitle: String = "거래소"
         static let coinInfoTitle: String = "코인정보"
