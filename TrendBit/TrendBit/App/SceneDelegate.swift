@@ -17,9 +17,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: scene)
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
+        NetworkMonitorManager.shared.startMonitoring()
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) { }
+    func sceneDidDisconnect(_ scene: UIScene) {
+        NetworkMonitorManager.shared.stopMonitoring()
+    }
 
     func sceneDidBecomeActive(_ scene: UIScene) { }
 
