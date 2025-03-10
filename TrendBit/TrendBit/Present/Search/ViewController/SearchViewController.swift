@@ -106,7 +106,9 @@ final class SearchViewController: UIViewController {
                     owner.navigationController?.popViewController(animated: true)
                     
                 case .detail(let id):
-                    print("Detail ViewController 이동 - \(id)")
+                    let viewModel = DetailCoinViewModel(coinID: id)
+                    let viewController = DetailCoinViewController(viewModel: viewModel)
+                    owner.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
             .disposed(by: disposeBag)
