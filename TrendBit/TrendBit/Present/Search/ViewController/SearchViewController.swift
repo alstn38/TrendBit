@@ -134,8 +134,8 @@ final class SearchViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.presentToastError
-            .drive(with: self) { owner, message in
-                owner.view.makeToast(message)
+            .drive { message in
+                AlertToastManager.showToast(message: message)
             }
             .disposed(by: disposeBag)
         
