@@ -13,7 +13,7 @@ final class SearchCoinDTOMapper {
         
         return dto.coins.map {
             SearchCoinEntity(
-                rank: "#\($0.marketCapRank)",
+                rank: rank(from: $0.marketCapRank),
                 coinID: $0.id,
                 coinSymbol: $0.symbol,
                 coinName: $0.name,
@@ -21,5 +21,10 @@ final class SearchCoinDTOMapper {
                 favorite: false
             )
         }
+    }
+    
+    private func rank(from rank: Int?) -> String {
+        guard let rank else { return "랭킹 정보 없음" }
+        return "#\(rank)"
     }
 }
