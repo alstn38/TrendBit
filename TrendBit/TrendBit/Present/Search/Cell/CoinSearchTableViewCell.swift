@@ -70,6 +70,8 @@ final class CoinSearchTableViewCell: UITableViewCell, ReusableViewProtocol {
         coinSubNameLabel.numberOfLines = 1
         
         hashTagBackgroundView.backgroundColor = UIColor(resource: .trendBitGray).withAlphaComponent(0.3)
+        hashTagBackgroundView.layer.cornerRadius = 5
+        hashTagBackgroundView.clipsToBounds = true
         
         hashTagLabel.textColor = UIColor(resource: .trendBitGray)
         hashTagLabel.font = .systemFont(ofSize: 9, weight: .bold)
