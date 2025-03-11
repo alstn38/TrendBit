@@ -29,15 +29,18 @@ final class CoinInfoSearchView: UIView {
     private func configureView() {
         self.layer.cornerRadius = 25
         self.layer.borderWidth = 1
-        self.layer.borderColor = UIColor(resource: .trendBitGray).withAlphaComponent(0.3).cgColor
+        self.layer.borderColor = UIColor(resource: .trendBitGray).cgColor
         
         searchImageView.image = ImageAssets.magnifyingGlass
         searchImageView.tintColor = UIColor(resource: .trendBitGray)
         searchImageView.contentMode = .scaleAspectFill
         
-        searchTextField.placeholder = StringLiterals.CoinInfo.searchTextFieldPlaceholder
         searchTextField.textColor = UIColor(resource: .trendBitNavy)
         searchTextField.font = .systemFont(ofSize: 13, weight: .regular)
+        searchTextField.attributedPlaceholder = NSAttributedString(
+            string: StringLiterals.CoinInfo.searchTextFieldPlaceholder,
+            attributes: [.foregroundColor: UIColor(resource: .trendBitGray)]
+        )
     }
     
     private func configureHierarchy() {
