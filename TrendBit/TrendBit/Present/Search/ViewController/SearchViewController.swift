@@ -195,6 +195,7 @@ final class SearchViewController: UIViewController {
         searchTableView.backgroundColor = UIColor(resource: .trendBitWhite)
         searchTableView.rowHeight = 60
         searchTableView.showsVerticalScrollIndicator = false
+        searchTableView.keyboardDismissMode = .onDrag
         searchTableView.register(
             CoinSearchTableViewCell.self,
             forCellReuseIdentifier: CoinSearchTableViewCell.identifier
