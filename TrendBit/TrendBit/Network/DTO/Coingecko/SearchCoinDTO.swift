@@ -16,7 +16,7 @@ struct SearchCoinDetail: Decodable {
     let name: String
     let apiSymbol: String
     let symbol: String
-    let marketCapRank: Int
+    let marketCapRank: Int?
     let thumb: String
     let large: String
 
