@@ -144,7 +144,7 @@ final class DetailCoinViewController: UIViewController {
         
         percentageLabel.font = .systemFont(ofSize: 12, weight: .bold)
         
-        updateTimeLabel.textColor = UIColor(resource: .trendBitNavy).withAlphaComponent(0.3)
+        updateTimeLabel.textColor = UIColor(resource: .trendBitGray)
         updateTimeLabel.font = .systemFont(ofSize: 10, weight: .regular)
     }
     
