@@ -181,6 +181,8 @@ final class SearchViewController: UIViewController {
             button.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
         }
         
+        searchTitleButton[0].setTitleColor(UIColor(resource: .trendBitNavy), for: .normal)
+        
         pageSelectBackgroundView.backgroundColor = UIColor(resource: .trendBitGray)
         
         pageSelectView.backgroundColor = UIColor(resource: .trendBitNavy)
