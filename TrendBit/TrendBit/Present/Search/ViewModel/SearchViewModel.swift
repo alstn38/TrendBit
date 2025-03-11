@@ -91,6 +91,9 @@ final class SearchViewModel: InputOutputModel {
             .bind(with: self) { owner, searchedText in
                 if owner.searchedTextRelay.value == searchedText {
                     scrollToTopRelay.accept(())
+                } else if searchedText.isEmpty {
+                    presentToastErrorRelay.accept(StringLiterals.Toast.noResult)
+                    searchedDataRelay.accept([])
                 } else {
                     owner.searchedTextRelay.accept(searchedText)
                 }
