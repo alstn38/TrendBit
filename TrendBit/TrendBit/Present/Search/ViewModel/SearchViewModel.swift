@@ -22,7 +22,7 @@ final class SearchViewModel: InputOutputModel {
     }
     
     struct Output {
-        let searchText: Driver<String>
+        let searchInitText: Driver<String>
         let searchedData: Driver<[SearchCoinSection]>
         let scrollToTop: Driver<Void>
         let moveToOtherView: Driver<MoveToOtherViewType>
@@ -43,12 +43,7 @@ final class SearchViewModel: InputOutputModel {
         self.coinFavoriteService = coinFavoriteService
     }
     
-    deinit {
-        print("SearchViewModel - Deinit")
-    }
-    
     func transform(from input: Input) -> Output {
-        let searchTextRelay = BehaviorRelay(value: searchedTextRelay.value)
         let searchedDataRelay: BehaviorRelay<[SearchCoinSection]> = BehaviorRelay(value: [])
         let scrollToTopRelay = PublishRelay<Void>()
         let moveToOtherViewRelay = PublishRelay<MoveToOtherViewType>()
@@ -144,7 +139,7 @@ final class SearchViewModel: InputOutputModel {
             .disposed(by: disposeBag)
         
         return Output(
-            searchText: searchTextRelay.asDriver(),
+            searchInitText: Observable.just(searchedTextRelay.value).asDriver(onErrorJustReturn: ""),
             searchedData: searchedDataRelay.asDriver(),
             scrollToTop: scrollToTopRelay.asDriver(onErrorJustReturn: ()),
             moveToOtherView: moveToOtherViewRelay.asDriver(onErrorJustReturn: .pop),

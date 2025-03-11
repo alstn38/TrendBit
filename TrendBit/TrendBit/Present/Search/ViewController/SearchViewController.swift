@@ -61,10 +61,6 @@ final class SearchViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    deinit {
-        print("SearchViewController - Deinit")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -87,7 +83,7 @@ final class SearchViewController: UIViewController {
         
         let output = viewModel.transform(from: input)
         
-        output.searchText
+        output.searchInitText
             .drive(searchTextField.rx.text)
             .disposed(by: disposeBag)
         
