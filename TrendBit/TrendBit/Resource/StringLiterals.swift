@@ -27,6 +27,7 @@ enum StringLiterals {
         static let addFavoriteCoin: String = "이 즐겨찾기되었습니다."
         static let deleteFavoriteCoin: String = "이 즐겨찾기에서 제거되었습니다."
         static let connectError: String = "네트워크 통신이 원활하지 않습니다."
+        static let noResult: String = "검색 결과가 없습니다."
     }
     
     enum TapBar {
