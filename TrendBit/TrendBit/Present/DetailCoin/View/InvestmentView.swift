@@ -40,7 +40,7 @@ final class InvestmentView: UIView {
     }
     
     private func configureView() {
-        titleLabel.text = StringLiterals.DetailCoin.typeInfoTitle
+        titleLabel.text = StringLiterals.DetailCoin.investmentTitle
         titleLabel.textColor = UIColor(resource: .trendBitNavy)
         titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
         
