@@ -60,6 +60,7 @@ enum StringLiterals {
     
     enum DetailCoin {
         static let typeInfoTitle: String = "종목정보"
+        static let investmentTitle: String = "투자지표"
         static let moreButtonTitle: String = "더보기"
         static let highPriceTitle: String = "24시간 고가"
         static let lowPriceTitle: String = "24시간 저가"
