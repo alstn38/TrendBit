@@ -25,32 +25,29 @@ final class ExchangeViewModel: InputOutputModel {
         let presentError: Driver<(title: String, message: String)>
     }
     
-    private let originalExchangeData: BehaviorRelay<[MarketDataDTO]> = BehaviorRelay(value: [])
+    private let originalExchangeData: BehaviorRelay<[TickerResponseDTO]> = BehaviorRelay(value: [])
     private let filterStateRelay = BehaviorRelay<(SortFilterType, SortFilterState)>(value: (.transactionAmount, .none))
     private let disposeBag = DisposeBag()
     
     func transform(from input: Input) -> Output {
         let exchangeDataRelay: BehaviorRelay<[ExchangeSection]> = BehaviorRelay(value: [])
-        let loadingIndicatorRelay = BehaviorRelay(value: true)
+        let loadingIndicatorRelay = BehaviorRelay(value: false)
         let presentErrorRelay = PublishRelay<(title: String, message: String)>()
         
         input.viewDidLoad
-            .flatMap { Observable<Int>.timer(.seconds(0), period: .seconds(5), scheduler: MainScheduler.instance) }
-            .map { _ in UpbitEndPoint.marketData }
-            .flatMap { NetworkManager.shared.request(router: $0, responseType: [MarketDataDTO].self) }
-            .bind(with: self) { owner, response in
-                loadingIndicatorRelay.accept(false)
-                switch response {
-                case .success(let value):
-                    owner.originalExchangeData.accept(value)
-                    
-                case .failure(let error):
-                    presentErrorRelay.accept((
-                        title: StringLiterals.Alert.networkError,
-                        message: error.errorDescription ?? ""
-                    ))
-                }
+            .bind { _ in
+                WebSocketManager.shared.connect()
             }
+            .disposed(by: disposeBag)
+        
+        WebSocketManager.shared.tickerObservable
+            .observe(on: MainScheduler.instance)
+            .bind(to: originalExchangeData)
+            .disposed(by: disposeBag)
+        
+        WebSocketManager.shared.socketErrorObservable
+            .map { (StringLiterals.Alert.networkError, $0.localizedDescription) }
+            .bind(to: presentErrorRelay)
             .disposed(by: disposeBag)
         
         input.currentPriceFilterButtonDidTap
@@ -92,7 +89,7 @@ final class ExchangeViewModel: InputOutputModel {
     
     /// 원본 데이터를 선택된 filter에 맞게 재정렬하여 반환하는 메서드
     private func sortExchangeData(
-        data: [MarketDataDTO],
+        data: [TickerResponseDTO],
         filterType: SortFilterType,
         filterState: SortFilterState
     ) -> [ExchangeDataEntity] {
