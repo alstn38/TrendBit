@@ -13,6 +13,7 @@ final class ExchangeTableViewCell: UITableViewCell, ReusableViewProtocol {
     private let coinNameLabel = UILabel()
     private let currentPriceLabel = UILabel()
     private let previousDayPercentLabel = UILabel()
+    private let highlightView = UIView()
     private let previousDayAmountLabel = UILabel()
     private let transactionAmount = UILabel()
     
@@ -36,16 +37,27 @@ final class ExchangeTableViewCell: UITableViewCell, ReusableViewProtocol {
         previousDayAmountLabel.text = data.changePrice
         transactionAmount.text = data.transactionAmount
         
+        let color: UIColor
+
         switch data.changeState {
         case .rise:
-            previousDayPercentLabel.textColor = UIColor(resource: .trendBitRed)
-            previousDayAmountLabel.textColor = UIColor(resource: .trendBitRed)
+            color = UIColor(resource: .trendBitRed)
         case .fall:
-            previousDayPercentLabel.textColor = UIColor(resource: .trendBitBlue)
-            previousDayAmountLabel.textColor = UIColor(resource: .trendBitBlue)
+            color = UIColor(resource: .trendBitBlue)
         case .even:
-            previousDayPercentLabel.textColor = UIColor(resource: .trendBitGray)
-            previousDayAmountLabel.textColor = UIColor(resource: .trendBitGray)
+            color = UIColor(resource: .trendBitGray)
+        }
+        
+        previousDayPercentLabel.textColor = color
+        previousDayAmountLabel.textColor = color
+        
+        highlightView.layer.borderColor = color.cgColor
+        highlightView.alpha = 1
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            UIView.animate(withDuration: 0.5) {
+                self.highlightView.alpha = 0
+            }
         }
     }
     
@@ -59,6 +71,10 @@ final class ExchangeTableViewCell: UITableViewCell, ReusableViewProtocol {
         currentPriceLabel.textColor = UIColor(resource: .trendBitGray)
         currentPriceLabel.font = .systemFont(ofSize: 12, weight: .regular)
         currentPriceLabel.numberOfLines = 1
+        
+        highlightView.layer.cornerRadius = 4
+        highlightView.layer.borderWidth = 1
+        highlightView.alpha = 0
         
         previousDayPercentLabel.font = .systemFont(ofSize: 12, weight: .regular)
         previousDayPercentLabel.numberOfLines = 1
@@ -75,6 +91,7 @@ final class ExchangeTableViewCell: UITableViewCell, ReusableViewProtocol {
         contentView.addSubviews(
             coinNameLabel,
             currentPriceLabel,
+            highlightView,
             previousDayPercentLabel,
             previousDayAmountLabel,
             transactionAmount
@@ -91,6 +108,13 @@ final class ExchangeTableViewCell: UITableViewCell, ReusableViewProtocol {
         currentPriceLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview().offset(-6)
             $0.trailing.equalToSuperview().offset(-195)
+        }
+        
+        highlightView.snp.makeConstraints {
+            $0.top.equalTo(previousDayPercentLabel).offset(-4)
+            $0.bottom.equalTo(previousDayAmountLabel).offset(4)
+            $0.leading.equalTo(previousDayPercentLabel).offset(-6)
+            $0.trailing.equalTo(previousDayAmountLabel).offset(6)
         }
         
         previousDayPercentLabel.snp.makeConstraints {
