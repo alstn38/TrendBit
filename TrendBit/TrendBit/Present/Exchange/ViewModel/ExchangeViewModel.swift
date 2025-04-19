@@ -19,7 +19,7 @@ final class ExchangeViewModel: InputOutputModel {
     }
     
     struct Output {
-        let exchangeData: Driver<[ExchangeSection]>
+        let exchangeData: Driver<[ExchangeDataEntity]>
         let filterState: Driver<(SortFilterType, SortFilterState)>
         let loadingIndicator: Driver<Bool>
         let presentError: Driver<(title: String, message: String)>
@@ -30,7 +30,7 @@ final class ExchangeViewModel: InputOutputModel {
     private let disposeBag = DisposeBag()
     
     func transform(from input: Input) -> Output {
-        let exchangeDataRelay: BehaviorRelay<[ExchangeSection]> = BehaviorRelay(value: [])
+        let exchangeDataRelay: BehaviorRelay<[ExchangeDataEntity]> = BehaviorRelay(value: [])
         let loadingIndicatorRelay = BehaviorRelay(value: false)
         let presentErrorRelay = PublishRelay<(title: String, message: String)>()
         
@@ -75,7 +75,7 @@ final class ExchangeViewModel: InputOutputModel {
             .bind(with: self) { owner, exchangeData in
                 let (filterType, filterState) = owner.filterStateRelay.value
                 let sortedData = owner.sortExchangeData(data: exchangeData, filterType: filterType, filterState: filterState)
-                exchangeDataRelay.accept([ExchangeSection(items: sortedData)])
+                exchangeDataRelay.accept(sortedData)
             }
             .disposed(by: disposeBag)
         

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import RxDataSources
 import RxSwift
 import RxCocoa
 import SnapKit
@@ -16,16 +15,19 @@ final class ExchangeViewController: UIViewController {
     private let viewModel: ExchangeViewModel
     private let disposeBag = DisposeBag()
     
-    private let dataSource = RxTableViewSectionedReloadDataSource<ExchangeSection> {
-        dataSource, tableView, indexPath, item in
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: ExchangeTableViewCell.identifier,
-            for: indexPath
-        ) as? ExchangeTableViewCell else { return UITableViewCell() }
-        
-        cell.configureCell(with: item)
-        return cell
-    }
+    private lazy var dataSource = UITableViewDiffableDataSource<ExchangeSection, ExchangeDataEntity>(
+        tableView: exchangeTableView,
+        cellProvider: { tableView, indexPath, item in
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: ExchangeTableViewCell.identifier,
+                for: indexPath
+            ) as? ExchangeTableViewCell else {
+                return UITableViewCell()
+            }
+            cell.configureCell(with: item)
+            return cell
+        }
+    )
     
     private let titleLabel = UILabel()
     private let lineView = UIView()
@@ -66,7 +68,9 @@ final class ExchangeViewController: UIViewController {
         let output = viewModel.transform(from: input)
         
         output.exchangeData
-            .drive(exchangeTableView.rx.items(dataSource: dataSource))
+            .drive(with: self) { owner, data in
+                owner.applySnapshot(with: data)
+            }
             .disposed(by: disposeBag)
         
         output.filterState
@@ -183,5 +187,12 @@ final class ExchangeViewController: UIViewController {
             $0.top.equalTo(filterView.snp.bottom)
             $0.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+    }
+    
+    private func applySnapshot(with items: [ExchangeDataEntity]) {
+        var snapshot = NSDiffableDataSourceSnapshot<ExchangeSection, ExchangeDataEntity>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(items, toSection: .main)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 }
