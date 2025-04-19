@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ExchangeDataEntity {
+struct ExchangeDataEntity: Hashable {
     let coinName: String
     let currentPrice: String
     let changePercent: String
